@@ -1,0 +1,31 @@
+#!/usr/bin/expect
+set pass(0) "squarepants"
+set pass(1) "rhombuspants"
+set pass(2) "trapezoidpants"
+set count 0
+set prompt "> "
+spawn telnet 192.168.40.100
+expect {
+  "$prompt" {
+    send_user "successfully logged in!\r"
+  }
+  "password:" {
+    send "$pass($count)\r"
+    exp_continue
+  }
+  "login incorrect" {
+    incr count
+    exp_continue
+  }
+  "username:" {
+    send "spongebob\r"
+    exp_continue
+  }
+}
+send "command1\r"
+expect "$prompt"
+send "command2\r"
+expect "$prompt"
+send "exit\r"
+expect eof
+exit
