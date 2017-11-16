@@ -1,0 +1,39 @@
+#!/usr/bin/expect
+set user "userid";
+set pass "mypassword";
+set ipaddr1 "1.1.1.1";
+set ipaddr2 "2.2.2.2";
+set outfile "expecttest.outfile";
+
+exp_log_file -a $outfile;
+log_user 1;
+
+spawn /usr/bin/ssh -o StrictHostKeyChecking=no $user@$ipaddr1;
+expect "*assword: ";
+send "$pass\r";
+expect {
+    "*> " { puts "old code"; send "enable\r"; send "$pass\r"; }
+    "*# " { send "\r" ; }
+    #eof { }
+    #timeout { puts "timeout waiting for response" ; close ; exit }
+}
+expect "*#";
+send "show hostname\r";
+expect "*#";
+send eof;
+
+
+spawn /usr/bin/ssh -o StrictHostKeyChecking=no $user@$ipaddr2;
+expect "*assword: ";
+send "$pass\r";
+expect {
+    "*> " { send "enable\r"; send "$pass\r"; }
+    "*# " { send "\r"; }
+    #eof { }
+    #timeout { puts "timeout waiting for response" ; close ; exit }
+}
+expect "*#";
+send "show hostname\r";
+expect "*#";
+send eof;
+
